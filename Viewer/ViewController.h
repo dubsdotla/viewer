@@ -12,16 +12,21 @@
 #import "PlaceholderView.h"
 #import "DubsImageView.h"
 #import "DubsWindow.h"
+#import "BFPageControl.h"
 
-@interface ViewController : NSViewController
+@interface ViewController : NSViewController <BFPageControlDelegate>
 {
     IBOutlet DubsImageView *imageView;
     IBOutlet AVPlayerView *player;
     IBOutlet PlaceholderView *placeholderView;
     IBOutlet NSTextField *placeholderField;
     IBOutlet DubsWindow *dwindow;
-
+    BFPageControl *pageControl;
+    NSArray *fileArray;
+    id eventMonitor;
 }
+
+- (void)drawPageControlForPage:(NSInteger)pageNumber;
 
 
 @end

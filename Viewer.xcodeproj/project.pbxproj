@@ -18,6 +18,7 @@
 		596B98C01ECA7EEF003C44FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 596B98BE1ECA7EEF003C44FE /* Main.storyboard */; };
 		8C2637391EC90C6900B69794 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C2637381EC90C6900B69794 /* AVFoundation.framework */; };
 		8C26373B1EC90C9100B69794 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C26373A1EC90C9100B69794 /* AVKit.framework */; };
+		8C271D571EDAB67D005E081C /* BFPageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C271D561EDAB67D005E081C /* BFPageControl.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +40,8 @@
 		596B98C11ECA7F39003C44FE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Viewer/Info.plist; sourceTree = SOURCE_ROOT; };
 		8C2637381EC90C6900B69794 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		8C26373A1EC90C9100B69794 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		8C271D551EDAB67D005E081C /* BFPageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BFPageControl.h; path = Viewer/BFPageControl.h; sourceTree = SOURCE_ROOT; };
+		8C271D561EDAB67D005E081C /* BFPageControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BFPageControl.m; path = Viewer/BFPageControl.m; sourceTree = SOURCE_ROOT; };
 		8C2C1BE91EC8142A00DA2624 /* Viewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Viewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -84,6 +87,8 @@
 		8C2C1BEB1EC8142A00DA2624 /* Viewer */ = {
 			isa = PBXGroup;
 			children = (
+				8C271D551EDAB67D005E081C /* BFPageControl.h */,
+				8C271D561EDAB67D005E081C /* BFPageControl.m */,
 				596B98B71ECA7E9A003C44FE /* AppDelegate.h */,
 				596B98B81ECA7E9A003C44FE /* AppDelegate.m */,
 				596B98A81ECA7E73003C44FE /* DubsImageView.h */,
@@ -183,6 +188,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C271D571EDAB67D005E081C /* BFPageControl.m in Sources */,
 				596B98B91ECA7E9A003C44FE /* AppDelegate.m in Sources */,
 				596B98B21ECA7E73003C44FE /* DubsImageView.m in Sources */,
 				596B98B31ECA7E73003C44FE /* DubsPlayerView.m in Sources */,

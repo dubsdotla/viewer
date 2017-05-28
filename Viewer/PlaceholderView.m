@@ -29,10 +29,8 @@
     NSArray *filenames = [pboard propertyListForType:NSFilenamesPboardType];
     
     if([filenames count] > 0)
-    {
-        NSString *filepath = [filenames objectAtIndex:0];
-        
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:filepath forKey:@"filePath"];
+    {        
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:filenames forKey:@"filePaths"];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:@"fileDroppedNotification" object:nil userInfo:userInfo];
     }

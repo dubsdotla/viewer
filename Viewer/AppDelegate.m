@@ -30,25 +30,11 @@
     return YES;
 }
 
-
-- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
+- (void)application:(NSApplication *)sender openFiles:(NSArray<NSString *> *)filenames;
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-        
-    BOOL isDir;
-    if([fileManager fileExistsAtPath:filename isDirectory:&isDir])
-    {
-        if(!isDir)
-        {
-            NSDictionary *userInfo = [NSDictionary dictionaryWithObject:filename forKey:@"filePath"];
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:filenames forKey:@"filePaths"];
             
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"fileDroppedNotification" object:nil userInfo:userInfo];
-        }
-    }
-    
-    [NSApp activateIgnoringOtherApps:YES];
-    
-    return YES;
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"fileDroppedNotification" object:nil userInfo:userInfo];
 }
 
 @end
