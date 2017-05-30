@@ -21,13 +21,13 @@
     IBOutlet PlaceholderView *placeholderView;
     IBOutlet NSTextField *placeholderField;
     IBOutlet DubsWindow *dwindow;
-    BFPageControl *pageControl;
     NSArray *fileArray;
     id eventMonitor;
 }
 
-- (void)drawPageControlForPage:(NSInteger)pageNumber;
+@property (nonatomic, retain)  BFPageControl *pageControl;
 
+- (void)updatePageControlForPage:(NSInteger)pageNumber;
 
 @end
 

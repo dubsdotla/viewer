@@ -19,9 +19,40 @@
 - (void)awakeFromNib
 {
     dwindow = (DubsWindow *)self.view.window;
+    dwindow.title = @"";
+    
     fileArray = [[NSMutableArray alloc] init];
-    pageControl = [[BFPageControl alloc] init];
-    [pageControl setDelegate: self];
+    
+    _pageControl = [[BFPageControl alloc] init];
+    [_pageControl setDelegate: self];
+    
+    [_pageControl setHidesForSinglePage:YES];
+    [_pageControl setNumberOfPages: 1];
+    [_pageControl setIndicatorDiameterSize: 15];
+    [_pageControl setIndicatorMargin: 10];
+    [_pageControl setCurrentPage: 0];
+    [_pageControl setDrawingBlock: ^(NSRect frame, NSView *aView, BOOL isSelected, BOOL isHighlighted){
+        
+        frame = NSInsetRect(frame, 2.0, 2.0);
+        NSBezierPath *path = [NSBezierPath bezierPathWithOvalInRect: NSMakeRect(frame.origin.x, frame.origin.y + 1.5, frame.size.width, frame.size.height)];
+        [[NSColor whiteColor] set];
+        [path fill];
+        
+        path = [NSBezierPath bezierPathWithOvalInRect: frame];
+        NSColor *color = isSelected ? [NSColor colorWithCalibratedRed: (115.0 / 255.0) green: (115.0 / 255.0) blue: (115.0 / 255.0) alpha: 1.0] :
+        [NSColor colorWithCalibratedRed: (217.0 / 255.0) green: (217.0 / 255.0) blue: (217.0 / 255.0) alpha: 1.0];
+        
+        if(isHighlighted)
+            color = [NSColor colorWithCalibratedRed: (150.0 / 255.0) green: (150.0 / 255.0) blue: (150.0 / 255.0) alpha: 1.0];
+        
+        [color set];
+        [path fill];
+        
+        frame = NSInsetRect(frame, 0.5, 0.5);
+        [[NSColor colorWithCalibratedRed: (25.0 / 255.0) green: (25.0 / 255.0) blue: (25.0 / 255.0) alpha: 0.15] set];
+        [NSBezierPath setDefaultLineWidth: 1.0];
+        [[NSBezierPath bezierPathWithOvalInRect: frame] stroke];
+    }];
     
     eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
                      (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask | NSScrollWheelMask)
@@ -127,7 +158,10 @@
     if([fileArray count] > 0)
     {
         [NSApp activateIgnoringOtherApps:YES];
-        [self setMediaForPage:0];
+        [_pageControl setNumberOfPages:[fileArray count]];
+        [_pageControl setCurrentPage:0];
+
+        [self pageControl:_pageControl didSelectPageAtIndex:0];
     }
 }
 
@@ -157,11 +191,16 @@
         CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
         [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
         
-        [placeholderField setHidden:YES];
-        [imageView setHidden:NO];
-        [player setHidden:YES];
+        if(placeholderField.hidden == NO)
+            [placeholderField setHidden:YES];
         
-        [self drawPageControlForPage:pageNumber];
+        if(imageView.hidden == YES)
+            [imageView setHidden:NO];
+        
+        if(player.hidden == NO)
+            [player setHidden:YES];
+        
+        [dwindow setTitle:[filePath lastPathComponent]];
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeMovie))
@@ -178,12 +217,17 @@
         CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
         CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
         [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
+    
+        if(placeholderField.hidden == NO)
+            [placeholderField setHidden:YES];
         
-        [placeholderField setHidden:YES];
-        [imageView setHidden:YES];
-        [player setHidden:NO];
+        if(imageView.hidden == NO)
+            [imageView setHidden:YES];
         
-        [self drawPageControlForPage:pageNumber];
+        if(player.hidden == YES)
+            [player setHidden:NO];
+        
+        [dwindow setTitle:[filePath lastPathComponent]];
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeAudio))
@@ -201,11 +245,16 @@
         CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - (270/2);
         [dwindow setFrame:NSMakeRect(xPos, yPos, 480, 270) display:YES];
         
-        [placeholderField setHidden:YES];
-        [imageView setHidden:YES];
-        [player setHidden:NO];
+        if(placeholderField.hidden == NO)
+            [placeholderField setHidden:YES];
         
-        [self drawPageControlForPage:pageNumber];
+        if(imageView.hidden == NO)
+            [imageView setHidden:YES];
+        
+        if(player.hidden == YES)
+            [player setHidden:NO];
+        
+        [dwindow setTitle:[filePath lastPathComponent]];
     }
     
     /*else if (UTTypeConformsTo(fileUTI, kUTTypeText))
@@ -216,56 +265,25 @@
     CFRelease(fileUTI);
 }
 
-- (void)drawPageControlForPage:(NSInteger)pageNumber
+- (void)updatePageControlForPage:(NSInteger)pageNumber
 {
-    if([pageControl superview])
+    if([_pageControl superview])
     {
-        [pageControl removeFromSuperview];
+        [_pageControl removeFromSuperview];
     }
-        pageControl = nil;
-        pageControl = [[BFPageControl alloc] init];
-        [pageControl setDelegate: self];
     
-    NSRect frame = dwindow.frame;
+    [_pageControl setCurrentPage: pageNumber];
     
-    [pageControl setHidesForSinglePage:YES];
-    [pageControl setNumberOfPages: [fileArray count]];
-    [pageControl setIndicatorDiameterSize: 15];
-    [pageControl setIndicatorMargin: 5];
-    [pageControl setCurrentPage: pageNumber];
-    [pageControl setDrawingBlock: ^(NSRect frame, NSView *aView, BOOL isSelected, BOOL isHighlighted){
-        
-        frame = CGRectInset(frame, 2.0, 2.0);
-        NSBezierPath *path = [NSBezierPath bezierPathWithOvalInRect: CGRectMake(frame.origin.x, frame.origin.y + 1.5, frame.size.width, frame.size.height)];
-        [[NSColor whiteColor] set];
-        [path fill];
-        
-        path = [NSBezierPath bezierPathWithOvalInRect: frame];
-        NSColor *color = isSelected ? [NSColor colorWithCalibratedRed: (115.0 / 255.0) green: (115.0 / 255.0) blue: (115.0 / 255.0) alpha: 1.0] :
-        [NSColor colorWithCalibratedRed: (217.0 / 255.0) green: (217.0 / 255.0) blue: (217.0 / 255.0) alpha: 1.0];
-        
-        if(isHighlighted)
-            color = [NSColor colorWithCalibratedRed: (150.0 / 255.0) green: (150.0 / 255.0) blue: (150.0 / 255.0) alpha: 1.0];
-        
-        [color set];
-        [path fill];
-        
-        frame = CGRectInset(frame, 0.5, 0.5);
-        [[NSColor colorWithCalibratedRed: (25.0 / 255.0) green: (25.0 / 255.0) blue: (25.0 / 255.0) alpha: 0.15] set];
-        [NSBezierPath setDefaultLineWidth: 1.0];
-        [[NSBezierPath bezierPathWithOvalInRect: frame] stroke];
-    }];
-    
-    [dwindow.contentView addSubview: pageControl];
-    CGSize size = [pageControl intrinsicContentSize];
-    [pageControl setFrame: CGRectMake((frame.size.width - size.width)/2, 10, size.width, size.height)];
+    [dwindow.contentView addSubview: _pageControl];
+    NSSize size = [_pageControl intrinsicContentSize];
+    [_pageControl setFrame: NSMakeRect((dwindow.frame.size.width - size.width)/2, 10, size.width, size.height)];    
 }
 
 - (void)fileCanceled:(NSNotification *)notification
 {
-    if([pageControl superview])
+    if([_pageControl superview])
     {
-        [pageControl removeFromSuperview];
+        [_pageControl removeFromSuperview];
     }
     
     [player.player pause];
@@ -281,6 +299,8 @@
     [placeholderField setHidden:NO];
     [imageView setHidden:YES];
     [player setHidden:YES];
+    
+    dwindow.title = @"";
 }
 
 -(void)pageControl: (BFPageControl *)control didSelectPageAtIndex: (NSInteger)index
@@ -290,26 +310,26 @@
     NSLog(@"control.currentPage is: %ld", (long)control.currentPage);
     
     [self setMediaForPage:index];
-    [self drawPageControlForPage:index];
+    [self updatePageControlForPage:index];
 }
 
 - (void)previousItem:(NSNotification *)aNotification
 {
-    NSLog(@"control.currentPage is: %ld", (long)pageControl.currentPage);
+    NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
     
-    if(pageControl.currentPage != 0)
+    if(_pageControl.currentPage != 0)
     {
-        [self pageControl:pageControl didSelectPageAtIndex:pageControl.currentPage-1];
+        [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage-1];
     }
 }
 
 - (void)nextItem:(NSNotification *)aNotification
 {
-    NSLog(@"control.currentPage is: %ld", (long)pageControl.currentPage);
+    NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
     
-    if(pageControl.currentPage != (pageControl.numberOfPages - 1) )
+    if(_pageControl.currentPage != (_pageControl.numberOfPages - 1) )
     {
-        [self pageControl:pageControl didSelectPageAtIndex:pageControl.currentPage+1];
+        [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage+1];
     }
 }
 

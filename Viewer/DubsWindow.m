@@ -48,6 +48,7 @@
     [[self standardWindowButton:NSWindowCloseButton] setHidden:NO];
     [[self standardWindowButton:NSWindowMiniaturizeButton] setHidden:NO];
     [[self standardWindowButton:NSWindowZoomButton] setHidden:NO];
+    self.titleVisibility = NSWindowTitleVisible;
 }
 
 - (void)mouseExited:(NSEvent *)event
@@ -57,6 +58,7 @@
     [[self standardWindowButton:NSWindowCloseButton] setHidden:YES];
     [[self standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
     [[self standardWindowButton:NSWindowZoomButton] setHidden:YES];
+    self.titleVisibility = NSWindowTitleHidden;
 }
 
 @end
