@@ -712,7 +712,6 @@
                     <connections>
                         <outlet property="imageView" destination="9Fk-0z-9eb" id="4mp-Yq-u4H"/>
                         <outlet property="placeholderField" destination="PEY-az-ke4" id="OBh-gW-7Cu"/>
-                        <outlet property="placeholderView" destination="m2S-Jp-Qdl" id="0nF-vf-xD3"/>
                         <outlet property="player" destination="72G-Wf-cHa" id="h2W-2f-kLg"/>
                     </connections>
                 </viewController>

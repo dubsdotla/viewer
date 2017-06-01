@@ -13,14 +13,15 @@
 #import "DubsImageView.h"
 #import "DubsWindow.h"
 #import "BFPageControl.h"
+#import "RoundView.h"
+#import "NSView+Fade.m"
 
 @interface ViewController : NSViewController <BFPageControlDelegate>
 {
     IBOutlet DubsImageView *imageView;
     IBOutlet AVPlayerView *player;
-    IBOutlet PlaceholderView *placeholderView;
     IBOutlet NSTextField *placeholderField;
-    IBOutlet DubsWindow *dwindow;
+    DubsWindow *dwindow;
     NSArray *fileArray;
     id eventMonitor;
 }
@@ -28,6 +29,7 @@
 @property (nonatomic, retain)  BFPageControl *pageControl;
 
 - (void)updatePageControlForPage:(NSInteger)pageNumber;
+- (void)addRoundyFieldWithText:(NSString*)text forView:(NSView*)view;
 
 @end
 

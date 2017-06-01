@@ -16,7 +16,7 @@
     // Do any additional setup after loading the view.
 }
 
-- (void)awakeFromNib
+- (void)viewDidAppear
 {
     dwindow = (DubsWindow *)self.view.window;
     dwindow.title = @"";
@@ -55,64 +55,59 @@
     }];
     
     eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
-                     (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask | NSScrollWheelMask)
-                                                          handler:^(NSEvent *incomingEvent) {
-                                                              NSEvent *result = incomingEvent;
-                                                              //NSWindow *targetWindowForEvent = [incomingEvent window];
-                                                              
-                                                              //NSLog(@"targetWindowForEventIs: %@", targetWindowForEvent);
-                                                              
-                                                              if ([incomingEvent type] == NSKeyDown)
-                                                              {
-                                                                  if([incomingEvent keyCode] == 123)
-                                                                  {
-                                                                      result = nil;
-                                                                      
-                                                                      NSLog(@"SWIPE LEFT");
-                                                                      [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsLeftArrow" object:nil userInfo:nil];
-                                                                  }
-                                                                  
-                                                                  else if([incomingEvent keyCode] == 124)
-                                                                  {
-                                                                      result = nil;
-                                                                      
-                                                                      NSLog(@"SWIPE RIGHT");
-                                                                      [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsRightArrow" object:nil userInfo:nil];
-                                                                  }
-
-                                                                  NSLog(@"keyCode is: %d", [incomingEvent keyCode]);
-                                                              }
-                                                              
-                                                              else if(([incomingEvent type] == NSScrollWheel) && ([incomingEvent phase] != NSEventPhaseNone) && !(fabs([incomingEvent scrollingDeltaX]) <= fabs([incomingEvent scrollingDeltaY])))
-                                                              {
-                                                                  [incomingEvent trackSwipeEventWithOptions:0 dampenAmountThresholdMin:-1 max:1 usingHandler:^(CGFloat gestureAmount, NSEventPhase phase, BOOL isComplete, BOOL *stop) {
-                                                                      if (phase ==  NSEventPhaseBegan)
-                                                                      {
-                                                                          if (gestureAmount > 0)
-                                                                          {
-                                                                              NSLog(@"SWIPE LEFT");
-                                                                              [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsLeftArrow" object:nil userInfo:nil];
-                                                                          }
-                                                                          
-                                                                          else
-                                                                          {
-                                                                              NSLog(@"SWIPE RIGHT");
-                                                                              [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsRightArrow" object:nil userInfo:nil];
-                                                                          }
-                                                                      }
-                                                                      *stop = NO;
-                                                                  }];
-                                                                  
-                                                                  result = nil;
-                                                              }
-
-                                                              return result;
-                                                          }];
-}
-
-- (void)viewDidAppear
-{
-    [super viewDidAppear];
+                    (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask | NSScrollWheelMask)
+                                                         handler:^(NSEvent *incomingEvent) {
+                                                             NSEvent *result = incomingEvent;
+                                                             //NSWindow *targetWindowForEvent = [incomingEvent window];
+                                                             
+                                                             //NSLog(@"targetWindowForEventIs: %@", targetWindowForEvent);
+                                                             
+                                                             if ([incomingEvent type] == NSKeyDown)
+                                                             {
+                                                                 if([incomingEvent keyCode] == 123)
+                                                                 {
+                                                                     result = nil;
+                                                                     
+                                                                     NSLog(@"SWIPE LEFT");
+                                                                     [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsLeftArrow" object:nil userInfo:nil];
+                                                                 }
+                                                                 
+                                                                 else if([incomingEvent keyCode] == 124)
+                                                                 {
+                                                                     result = nil;
+                                                                     
+                                                                     NSLog(@"SWIPE RIGHT");
+                                                                     [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsRightArrow" object:nil userInfo:nil];
+                                                                 }
+                                                                 
+                                                                 NSLog(@"keyCode is: %d", [incomingEvent keyCode]);
+                                                             }
+                                                             
+                                                             else if(([incomingEvent type] == NSScrollWheel) && ([incomingEvent phase] != NSEventPhaseNone) && !(fabs([incomingEvent scrollingDeltaX]) <= fabs([incomingEvent scrollingDeltaY])))
+                                                             {
+                                                                 [incomingEvent trackSwipeEventWithOptions:0 dampenAmountThresholdMin:-1 max:1 usingHandler:^(CGFloat gestureAmount, NSEventPhase phase, BOOL isComplete, BOOL *stop) {
+                                                                     if (phase ==  NSEventPhaseBegan)
+                                                                     {
+                                                                         if (gestureAmount > 0)
+                                                                         {
+                                                                             NSLog(@"SWIPE LEFT");
+                                                                             [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsLeftArrow" object:nil userInfo:nil];
+                                                                         }
+                                                                         
+                                                                         else
+                                                                         {
+                                                                             NSLog(@"SWIPE RIGHT");
+                                                                             [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsRightArrow" object:nil userInfo:nil];
+                                                                         }
+                                                                     }
+                                                                     *stop = NO;
+                                                                 }];
+                                                                 
+                                                                 result = nil;
+                                                             }
+                                                             
+                                                             return result;
+                                                         }];
     
     if(placeholderField.hidden == NO)
     {
@@ -121,6 +116,7 @@
         CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
         CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
         [dwindow setFrame:NSMakeRect(xPos, yPos, 480, 270) display:YES];
+        
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -200,7 +196,8 @@
         if(player.hidden == NO)
             [player setHidden:YES];
         
-        [dwindow setTitle:[filePath lastPathComponent]];
+        //[dwindow setTitle:[filePath lastPathComponent]];
+        [self addRoundyFieldWithText:[filePath lastPathComponent] forView:imageView];
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeMovie))
@@ -227,7 +224,8 @@
         if(player.hidden == YES)
             [player setHidden:NO];
         
-        [dwindow setTitle:[filePath lastPathComponent]];
+        //[dwindow setTitle:[filePath lastPathComponent]];
+        [self addRoundyFieldWithText:[filePath lastPathComponent] forView:player];
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeAudio))
@@ -254,7 +252,8 @@
         if(player.hidden == YES)
             [player setHidden:NO];
         
-        [dwindow setTitle:[filePath lastPathComponent]];
+        //[dwindow setTitle:[filePath lastPathComponent]];
+        [self addRoundyFieldWithText:[filePath lastPathComponent] forView:player];
     }
     
     /*else if (UTTypeConformsTo(fileUTI, kUTTypeText))
@@ -263,6 +262,52 @@
      }*/
     
     CFRelease(fileUTI);
+}
+
+- (void)addRoundyFieldWithText:(NSString*)text forView:(NSView*)view
+{
+    [view.subviews enumerateObjectsUsingBlock:^(NSView * subview, NSUInteger idx, BOOL *stop) {
+        if([subview isMemberOfClass:[RoundView class]])
+            [subview removeFromSuperview];
+    }];
+    
+    NSString *dummyText = text;
+    NSFont *textFont = [NSFont systemFontOfSize:24 weight:NSFontWeightBlack];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:textFont,NSFontAttributeName,nil];
+    CGSize textSize = [dummyText sizeWithAttributes:attributes];
+    
+    if((textSize.width + 24) > [dwindow.contentView  bounds].size.width)
+    {
+        textSize.width = [dwindow.contentView  bounds].size.width - 24;
+    }
+    
+    RoundView *roundy = [[RoundView alloc] initWithFrame:NSMakeRect(90,40,textSize.width + 24,30)];
+    
+    NSTextField *roundyField = [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,textSize.width + 24,30)];
+    [roundyField setDrawsBackground:NO];
+    [roundyField setBordered:NO];
+    [roundyField setBezeled:NO];
+    [roundyField setFont:textFont];
+    [roundyField setTextColor:[NSColor whiteColor]];
+    [roundyField setStringValue:dummyText];
+    [roundyField setEditable:NO];
+    roundyField.alignment = NSTextAlignmentCenter;
+    
+    [roundy setFrameOrigin:NSMakePoint(
+                                       (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
+                                       (NSHeight([dwindow.contentView  bounds]) - NSHeight([roundy frame])) / 2
+                                       )];
+    
+    [roundy setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
+    
+    [roundy addSubview:roundyField];
+    
+    [view addSubview:roundy];
+    
+    [roundy fadeInWithDuration:4.0 completionBlock:^{
+        [roundy fadeOutWithDuration:4.0 completionBlock:^{
+        }];
+    }];
 }
 
 - (void)updatePageControlForPage:(NSInteger)pageNumber
