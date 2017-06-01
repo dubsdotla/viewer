@@ -16,9 +16,11 @@
 		596B98BB1ECA7EB6003C44FE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 596B98BA1ECA7EB6003C44FE /* main.m */; };
 		596B98BD1ECA7EE6003C44FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 596B98BC1ECA7EE6003C44FE /* Assets.xcassets */; };
 		596B98C01ECA7EEF003C44FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 596B98BE1ECA7EEF003C44FE /* Main.storyboard */; };
+		8C13FD551EDFF2B5004BD49D /* NSView+Fade.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C13FD541EDFF2B5004BD49D /* NSView+Fade.m */; };
 		8C2637391EC90C6900B69794 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C2637381EC90C6900B69794 /* AVFoundation.framework */; };
 		8C26373B1EC90C9100B69794 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C26373A1EC90C9100B69794 /* AVKit.framework */; };
 		8C271D571EDAB67D005E081C /* BFPageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C271D561EDAB67D005E081C /* BFPageControl.m */; };
+		8C271D8E1EDD14C3005E081C /* RoundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C271D8D1EDD14C3005E081C /* RoundView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,10 +40,14 @@
 		596B98BC1ECA7EE6003C44FE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Viewer/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		596B98BF1ECA7EEF003C44FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Viewer/Base.lproj/Main.storyboard; sourceTree = SOURCE_ROOT; };
 		596B98C11ECA7F39003C44FE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Viewer/Info.plist; sourceTree = SOURCE_ROOT; };
+		8C13FD531EDFF2B5004BD49D /* NSView+Fade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSView+Fade.h"; path = "Viewer/NSView+Fade.h"; sourceTree = SOURCE_ROOT; };
+		8C13FD541EDFF2B5004BD49D /* NSView+Fade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSView+Fade.m"; path = "Viewer/NSView+Fade.m"; sourceTree = SOURCE_ROOT; };
 		8C2637381EC90C6900B69794 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		8C26373A1EC90C9100B69794 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		8C271D551EDAB67D005E081C /* BFPageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BFPageControl.h; path = Viewer/BFPageControl.h; sourceTree = SOURCE_ROOT; };
 		8C271D561EDAB67D005E081C /* BFPageControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BFPageControl.m; path = Viewer/BFPageControl.m; sourceTree = SOURCE_ROOT; };
+		8C271D8C1EDD14C3005E081C /* RoundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RoundView.h; path = Viewer/RoundView.h; sourceTree = SOURCE_ROOT; };
+		8C271D8D1EDD14C3005E081C /* RoundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoundView.m; path = Viewer/RoundView.m; sourceTree = SOURCE_ROOT; };
 		8C2C1BE91EC8142A00DA2624 /* Viewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Viewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -87,6 +93,8 @@
 		8C2C1BEB1EC8142A00DA2624 /* Viewer */ = {
 			isa = PBXGroup;
 			children = (
+				8C13FD531EDFF2B5004BD49D /* NSView+Fade.h */,
+				8C13FD541EDFF2B5004BD49D /* NSView+Fade.m */,
 				8C271D551EDAB67D005E081C /* BFPageControl.h */,
 				8C271D561EDAB67D005E081C /* BFPageControl.m */,
 				596B98B71ECA7E9A003C44FE /* AppDelegate.h */,
@@ -97,6 +105,8 @@
 				596B98AB1ECA7E73003C44FE /* DubsPlayerView.m */,
 				596B98AC1ECA7E73003C44FE /* DubsWindow.h */,
 				596B98AD1ECA7E73003C44FE /* DubsWindow.m */,
+				8C271D8C1EDD14C3005E081C /* RoundView.h */,
+				8C271D8D1EDD14C3005E081C /* RoundView.m */,
 				596B98AE1ECA7E73003C44FE /* PlaceholderView.h */,
 				596B98AF1ECA7E73003C44FE /* PlaceholderView.m */,
 				596B98B01ECA7E73003C44FE /* ViewController.h */,
@@ -189,12 +199,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C271D571EDAB67D005E081C /* BFPageControl.m in Sources */,
+				8C13FD551EDFF2B5004BD49D /* NSView+Fade.m in Sources */,
 				596B98B91ECA7E9A003C44FE /* AppDelegate.m in Sources */,
 				596B98B21ECA7E73003C44FE /* DubsImageView.m in Sources */,
 				596B98B31ECA7E73003C44FE /* DubsPlayerView.m in Sources */,
 				596B98B51ECA7E73003C44FE /* PlaceholderView.m in Sources */,
 				596B98B41ECA7E73003C44FE /* DubsWindow.m in Sources */,
 				596B98BB1ECA7EB6003C44FE /* main.m in Sources */,
+				8C271D8E1EDD14C3005E081C /* RoundView.m in Sources */,
 				596B98B61ECA7E73003C44FE /* ViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
