@@ -16,12 +16,11 @@
 #import "RoundView.h"
 #import "NSView+Fade.m"
 
-@interface ViewController : NSViewController <BFPageControlDelegate>
+@interface ViewController : NSViewController <BFPageControlDelegate, NSWindowDelegate>
 {
     IBOutlet DubsImageView *imageView;
     IBOutlet AVPlayerView *player;
     IBOutlet NSTextField *placeholderField;
-    DubsWindow *dwindow;
     NSArray *fileArray;
     id eventMonitor;
 }

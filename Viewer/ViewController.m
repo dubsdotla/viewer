@@ -10,15 +10,15 @@
 
 @implementation ViewController
 
+
 - (void)viewDidLoad
 {
+    NSLog(@"viewDidLoad");
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
-}
 
-- (void)viewDidAppear
-{
-    dwindow = (DubsWindow *)self.view.window;
+    //dwindow = (DubsWindow *)self.view.window;
+    
+    //NSLog(@"dwindow is: %@", dwindow);
     
     fileArray = [[NSMutableArray alloc] init];
     
@@ -31,27 +31,36 @@
     [_pageControl setIndicatorMargin: 10];
     [_pageControl setCurrentPage: 0];
     /*[_pageControl setDrawingBlock: ^(NSRect frame, NSView *aView, BOOL isSelected, BOOL isHighlighted){
-        
-        frame = NSInsetRect(frame, 2.0, 2.0);
-        NSBezierPath *path = [NSBezierPath bezierPathWithOvalInRect: NSMakeRect(frame.origin.x, frame.origin.y + 1.5, frame.size.width, frame.size.height)];
-        [[NSColor whiteColor] set];
-        [path fill];
-        
-        path = [NSBezierPath bezierPathWithOvalInRect: frame];
-        NSColor *color = isSelected ? [NSColor colorWithCalibratedRed: (115.0 / 255.0) green: (115.0 / 255.0) blue: (115.0 / 255.0) alpha: 1.0] :
-        [NSColor colorWithCalibratedRed: (217.0 / 255.0) green: (217.0 / 255.0) blue: (217.0 / 255.0) alpha: 1.0];
-        
-        if(isHighlighted)
-            color = [NSColor colorWithCalibratedRed: (150.0 / 255.0) green: (150.0 / 255.0) blue: (150.0 / 255.0) alpha: 1.0];
-        
-        [color set];
-        [path fill];
-        
-        frame = NSInsetRect(frame, 0.5, 0.5);
-        [[NSColor colorWithCalibratedRed: (25.0 / 255.0) green: (25.0 / 255.0) blue: (25.0 / 255.0) alpha: 0.15] set];
-        [NSBezierPath setDefaultLineWidth: 1.0];
-        [[NSBezierPath bezierPathWithOvalInRect: frame] stroke];
-    }];*/
+     
+     frame = NSInsetRect(frame, 2.0, 2.0);
+     NSBezierPath *path = [NSBezierPath bezierPathWithOvalInRect: NSMakeRect(frame.origin.x, frame.origin.y + 1.5, frame.size.width, frame.size.height)];
+     [[NSColor whiteColor] set];
+     [path fill];
+     
+     path = [NSBezierPath bezierPathWithOvalInRect: frame];
+     NSColor *color = isSelected ? [NSColor colorWithCalibratedRed: (115.0 / 255.0) green: (115.0 / 255.0) blue: (115.0 / 255.0) alpha: 1.0] :
+     [NSColor colorWithCalibratedRed: (217.0 / 255.0) green: (217.0 / 255.0) blue: (217.0 / 255.0) alpha: 1.0];
+     
+     if(isHighlighted)
+     color = [NSColor colorWithCalibratedRed: (150.0 / 255.0) green: (150.0 / 255.0) blue: (150.0 / 255.0) alpha: 1.0];
+     
+     [color set];
+     [path fill];
+     
+     frame = NSInsetRect(frame, 0.5, 0.5);
+     [[NSColor colorWithCalibratedRed: (25.0 / 255.0) green: (25.0 / 255.0) blue: (25.0 / 255.0) alpha: 0.15] set];
+     [NSBezierPath setDefaultLineWidth: 1.0];
+     [[NSBezierPath bezierPathWithOvalInRect: frame] stroke];
+     }];*/
+}
+
+- (void)viewDidAppear
+{
+    NSLog(@"viewDidAppear");
+    [super viewDidAppear];
+    
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    dwindow.delegate = self;
     
     eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
                     (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask | NSScrollWheelMask)
@@ -110,7 +119,7 @@
     
     if(placeholderField.hidden == NO)
     {
-        [dwindow setMaxSize:[[NSScreen mainScreen] frame].size];
+        //[dwindow setMaxSize:[[NSScreen mainScreen] frame].size];
         
         CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
         CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
@@ -137,9 +146,34 @@
 
 - (void)viewDidDisappear
 {
+    self.view.window.delegate = nil;
+    
+    NSLog(@"viewDidDisappear");
     [super viewDidDisappear];
     
+    [NSEvent removeMonitor:eventMonitor];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)windowDidEnterFullScreen:(NSNotification *)notification
+{
+    NSLog(@"windowDidEnterFullScreen");
+    
+    if([fileArray count] > 0)
+    {
+        [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage];
+    }
+}
+
+- (void)windowDidExitFullScreen:(NSNotification *)notification
+{
+    NSLog(@"windowDidExitFullScreen");
+    
+    if([fileArray count] > 0)
+    {
+        [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage];
+    }
 }
 
 - (void)fileDropped:(NSNotification *)notification
@@ -162,6 +196,8 @@
 
 - (void)setMediaForPage:(NSInteger)pageNumber
 {
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    
     NSString *filePath = [fileArray objectAtIndex:pageNumber];
     
     NSLog(@"FILEPATH IS: %@", filePath);
@@ -190,9 +226,19 @@
         [dwindow setAspectRatio:imageSize];
         [dwindow setContentSize:imageSize];
         
-        CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
-        CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
-        [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
+        if(([dwindow styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask)
+        {
+            CGFloat xPos = NSWidth([[NSScreen mainScreen] frame])/2 - NSWidth([[NSScreen mainScreen] frame])/2;
+            CGFloat yPos = NSHeight([[NSScreen mainScreen] frame])/2 - NSHeight([[NSScreen mainScreen] frame])/2;
+            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([[NSScreen mainScreen] frame]), NSHeight([[NSScreen mainScreen] frame])) display:YES];
+        }
+        
+        else
+        {
+            CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
+            CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
+            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
+        }
         
         if(placeholderField.hidden == NO)
             [placeholderField setHidden:YES];
@@ -224,9 +270,19 @@
         [dwindow setAspectRatio:assetSize];
         [dwindow setContentSize:assetSize];
         
-        CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
-        CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
-        [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
+        if(([dwindow styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask)
+        {
+            CGFloat xPos = NSWidth([[NSScreen mainScreen] frame])/2 - NSWidth([[NSScreen mainScreen] frame])/2;
+            CGFloat yPos = NSHeight([[NSScreen mainScreen] frame])/2 - NSHeight([[NSScreen mainScreen] frame])/2;
+            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([[NSScreen mainScreen] frame]), NSHeight([[NSScreen mainScreen] frame])) display:YES];
+        }
+        
+        else
+        {
+            CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
+            CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
+            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
+        }
     
         if(placeholderField.hidden == NO)
             [placeholderField setHidden:YES];
@@ -258,9 +314,19 @@
         [dwindow setAspectRatio:assetSize];
         [dwindow setContentSize:[[NSScreen mainScreen] frame].size];
         
-        CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - (480/2);
-        CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - (270/2);
-        [dwindow setFrame:NSMakeRect(xPos, yPos, 480, 270) display:YES];
+        if(([dwindow styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask)
+        {
+            CGFloat xPos = NSWidth([[NSScreen mainScreen] frame])/2 - NSWidth([[NSScreen mainScreen] frame])/2;
+            CGFloat yPos = NSHeight([[NSScreen mainScreen] frame])/2 - NSHeight([[NSScreen mainScreen] frame])/2;
+            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([[NSScreen mainScreen] frame]), NSHeight([[NSScreen mainScreen] frame])) display:YES];
+        }
+        
+        else
+        {
+            CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - (480/2);
+            CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - (270/2);
+            [dwindow setFrame:NSMakeRect(xPos, yPos, 480, 270) display:YES];
+        }
         
         if(placeholderField.hidden == NO)
             [placeholderField setHidden:YES];
@@ -285,6 +351,8 @@
 
 - (void)addRoundyFieldWithText:(NSString*)text forView:(NSView*)view
 {
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    
     [view.subviews enumerateObjectsUsingBlock:^(NSView * subview, NSUInteger idx, BOOL *stop) {
         if([subview isMemberOfClass:[RoundView class]])
             [subview removeFromSuperview];
@@ -336,6 +404,8 @@
 
 - (void)updatePageControlForPage:(NSInteger)pageNumber
 {
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    
     if([_pageControl superview])
     {
         [_pageControl removeFromSuperview];
@@ -350,6 +420,8 @@
 
 - (void)fileCanceled:(NSNotification *)notification
 {
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+   
     if([_pageControl superview])
     {
         [_pageControl removeFromSuperview];
@@ -358,7 +430,7 @@
     [player.player pause];
     [imageView setImage:nil];
     
-    [dwindow setMaxSize:[[NSScreen mainScreen] frame].size];
+    //[dwindow setMaxSize:[[NSScreen mainScreen] frame].size];
     
     [dwindow setFrame:NSMakeRect(0, 0, 480, 270) display:YES];
     CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
@@ -406,6 +478,5 @@
     [super setRepresentedObject:representedObject];
     // Update the view, if already loaded.
 }
-
 
 @end
