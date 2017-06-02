@@ -19,7 +19,6 @@
 - (void)viewDidAppear
 {
     dwindow = (DubsWindow *)self.view.window;
-    dwindow.title = @"";
     
     fileArray = [[NSMutableArray alloc] init];
     
@@ -31,7 +30,7 @@
     [_pageControl setIndicatorDiameterSize: 15];
     [_pageControl setIndicatorMargin: 10];
     [_pageControl setCurrentPage: 0];
-    [_pageControl setDrawingBlock: ^(NSRect frame, NSView *aView, BOOL isSelected, BOOL isHighlighted){
+    /*[_pageControl setDrawingBlock: ^(NSRect frame, NSView *aView, BOOL isSelected, BOOL isHighlighted){
         
         frame = NSInsetRect(frame, 2.0, 2.0);
         NSBezierPath *path = [NSBezierPath bezierPathWithOvalInRect: NSMakeRect(frame.origin.x, frame.origin.y + 1.5, frame.size.width, frame.size.height)];
@@ -52,7 +51,7 @@
         [[NSColor colorWithCalibratedRed: (25.0 / 255.0) green: (25.0 / 255.0) blue: (25.0 / 255.0) alpha: 0.15] set];
         [NSBezierPath setDefaultLineWidth: 1.0];
         [[NSBezierPath bezierPathWithOvalInRect: frame] stroke];
-    }];
+    }];*/
     
     eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
                     (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask | NSScrollWheelMask)
@@ -68,7 +67,7 @@
                                                                  {
                                                                      result = nil;
                                                                      
-                                                                     NSLog(@"SWIPE LEFT");
+                                                                     //NSLog(@"SWIPE LEFT");
                                                                      [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsLeftArrow" object:nil userInfo:nil];
                                                                  }
                                                                  
@@ -76,11 +75,11 @@
                                                                  {
                                                                      result = nil;
                                                                      
-                                                                     NSLog(@"SWIPE RIGHT");
+                                                                     //NSLog(@"SWIPE RIGHT");
                                                                      [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsRightArrow" object:nil userInfo:nil];
                                                                  }
                                                                  
-                                                                 NSLog(@"keyCode is: %d", [incomingEvent keyCode]);
+                                                                 //NSLog(@"keyCode is: %d", [incomingEvent keyCode]);
                                                              }
                                                              
                                                              else if(([incomingEvent type] == NSScrollWheel) && ([incomingEvent phase] != NSEventPhaseNone) && !(fabs([incomingEvent scrollingDeltaX]) <= fabs([incomingEvent scrollingDeltaY])))
@@ -90,13 +89,13 @@
                                                                      {
                                                                          if (gestureAmount > 0)
                                                                          {
-                                                                             NSLog(@"SWIPE LEFT");
+                                                                             //NSLog(@"SWIPE LEFT");
                                                                              [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsLeftArrow" object:nil userInfo:nil];
                                                                          }
                                                                          
                                                                          else
                                                                          {
-                                                                             NSLog(@"SWIPE RIGHT");
+                                                                             //NSLog(@"SWIPE RIGHT");
                                                                              [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsRightArrow" object:nil userInfo:nil];
                                                                          }
                                                                      }
@@ -172,9 +171,17 @@
     
     NSLog(@"FILEUTI IS: %@", (__bridge NSString*)fileUTI);
     
+    [dwindow setMaxSize:NSMakeSize([[dwindow screen] frame].size.width, [[dwindow screen] frame].size.height)];
+    
     if (UTTypeConformsTo(fileUTI, kUTTypeImage) || UTTypeConformsTo(fileUTI, kUTTypePDF) || [(__bridge NSString*)fileUTI isEqualToString:@"com.adobe.encapsulated-postscript"])
     {
         NSImage *droppedImage = [[NSImage alloc] initWithContentsOfFile:filePath];
+        
+        if(droppedImage == NULL)
+        {
+            NSLog(@"Can't open image \"%@\"", [filePath lastPathComponent]);
+            return;
+        }
         
         [imageView setImage:droppedImage];
         
@@ -196,13 +203,19 @@
         if(player.hidden == NO)
             [player setHidden:YES];
         
-        //[dwindow setTitle:[filePath lastPathComponent]];
+        [dwindow setTitle:[filePath lastPathComponent]];
         [self addRoundyFieldWithText:[filePath lastPathComponent] forView:imageView];
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeMovie))
     {
         AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:filePath]];
+        
+        if(asset == NULL)
+        {
+            NSLog(@"Can't open movie \"%@\"", [filePath lastPathComponent]);
+            return;
+        }
         
         NSSize assetSize = [[[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] naturalSize];
         
@@ -224,13 +237,19 @@
         if(player.hidden == YES)
             [player setHidden:NO];
         
-        //[dwindow setTitle:[filePath lastPathComponent]];
+        [dwindow setTitle:[filePath lastPathComponent]];
         [self addRoundyFieldWithText:[filePath lastPathComponent] forView:player];
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeAudio))
     {
         AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:filePath]];
+        
+        if(asset == NULL)
+        {
+            NSLog(@"Can't open audio \"%@\"", [filePath lastPathComponent]);
+            return;
+        }
         
         player.player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:asset]];
         
@@ -252,7 +271,7 @@
         if(player.hidden == YES)
             [player setHidden:NO];
         
-        //[dwindow setTitle:[filePath lastPathComponent]];
+        [dwindow setTitle:[filePath lastPathComponent]];
         [self addRoundyFieldWithText:[filePath lastPathComponent] forView:player];
     }
     
@@ -293,9 +312,14 @@
     [roundyField setEditable:NO];
     roundyField.alignment = NSTextAlignmentCenter;
     
-    [roundy setFrameOrigin:NSMakePoint(
+    /*[roundy setFrameOrigin:NSMakePoint(
                                        (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
                                        (NSHeight([dwindow.contentView  bounds]) - NSHeight([roundy frame])) / 2
+                                       )];*/
+    
+    [roundy setFrameOrigin:NSMakePoint(
+                                       (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
+                                       dwindow.contentView.frame.size.height - 50
                                        )];
     
     [roundy setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
@@ -350,9 +374,8 @@
 
 -(void)pageControl: (BFPageControl *)control didSelectPageAtIndex: (NSInteger)index
 {
-    NSLog(@"%@: Selected page at index: %li", control, index);
-    //[_label setStringValue: [NSString stringWithFormat: @"Index %li selected", index]];
-    NSLog(@"control.currentPage is: %ld", (long)control.currentPage);
+    //NSLog(@"%@: Selected page at index: %li", control, index);
+    //NSLog(@"control.currentPage is: %ld", (long)control.currentPage);
     
     [self setMediaForPage:index];
     [self updatePageControlForPage:index];
@@ -360,7 +383,7 @@
 
 - (void)previousItem:(NSNotification *)aNotification
 {
-    NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
+    //NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
     
     if(_pageControl.currentPage != 0)
     {
@@ -370,7 +393,7 @@
 
 - (void)nextItem:(NSNotification *)aNotification
 {
-    NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
+    //NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
     
     if(_pageControl.currentPage != (_pageControl.numberOfPages - 1) )
     {

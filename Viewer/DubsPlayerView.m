@@ -68,13 +68,13 @@
         {
             if (gestureAmount > 0)
             {
-                NSLog(@"SWIPE LEFT");
+                //NSLog(@"SWIPE LEFT");
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsLeftArrow" object:nil userInfo:nil];
             }
             
             else
             {
-                NSLog(@"SWIPE RIGHT");
+                //NSLog(@"SWIPE RIGHT");
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"DubsRightArrow" object:nil userInfo:nil];
             }
         }
