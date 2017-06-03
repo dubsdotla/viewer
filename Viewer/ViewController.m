@@ -13,12 +13,8 @@
 
 - (void)viewDidLoad
 {
-    NSLog(@"viewDidLoad");
+    //NSLog(@"viewDidLoad");
     [super viewDidLoad];
-
-    //dwindow = (DubsWindow *)self.view.window;
-    
-    //NSLog(@"dwindow is: %@", dwindow);
     
     fileArray = [[NSMutableArray alloc] init];
     
@@ -30,33 +26,13 @@
     [_pageControl setIndicatorDiameterSize: 15];
     [_pageControl setIndicatorMargin: 10];
     [_pageControl setCurrentPage: 0];
-    /*[_pageControl setDrawingBlock: ^(NSRect frame, NSView *aView, BOOL isSelected, BOOL isHighlighted){
-     
-     frame = NSInsetRect(frame, 2.0, 2.0);
-     NSBezierPath *path = [NSBezierPath bezierPathWithOvalInRect: NSMakeRect(frame.origin.x, frame.origin.y + 1.5, frame.size.width, frame.size.height)];
-     [[NSColor whiteColor] set];
-     [path fill];
-     
-     path = [NSBezierPath bezierPathWithOvalInRect: frame];
-     NSColor *color = isSelected ? [NSColor colorWithCalibratedRed: (115.0 / 255.0) green: (115.0 / 255.0) blue: (115.0 / 255.0) alpha: 1.0] :
-     [NSColor colorWithCalibratedRed: (217.0 / 255.0) green: (217.0 / 255.0) blue: (217.0 / 255.0) alpha: 1.0];
-     
-     if(isHighlighted)
-     color = [NSColor colorWithCalibratedRed: (150.0 / 255.0) green: (150.0 / 255.0) blue: (150.0 / 255.0) alpha: 1.0];
-     
-     [color set];
-     [path fill];
-     
-     frame = NSInsetRect(frame, 0.5, 0.5);
-     [[NSColor colorWithCalibratedRed: (25.0 / 255.0) green: (25.0 / 255.0) blue: (25.0 / 255.0) alpha: 0.15] set];
-     [NSBezierPath setDefaultLineWidth: 1.0];
-     [[NSBezierPath bezierPathWithOvalInRect: frame] stroke];
-     }];*/
+    
+    _pageControl.hidden = YES;
 }
 
 - (void)viewDidAppear
 {
-    NSLog(@"viewDidAppear");
+    //NSLog(@"viewDidAppear");
     [super viewDidAppear];
     
     DubsWindow *dwindow = (DubsWindow *)self.view.window;
@@ -66,9 +42,6 @@
                     (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask | NSScrollWheelMask)
                                                          handler:^(NSEvent *incomingEvent) {
                                                              NSEvent *result = incomingEvent;
-                                                             //NSWindow *targetWindowForEvent = [incomingEvent window];
-                                                             
-                                                             //NSLog(@"targetWindowForEventIs: %@", targetWindowForEvent);
                                                              
                                                              if ([incomingEvent type] == NSKeyDown)
                                                              {
@@ -119,8 +92,6 @@
     
     if(placeholderField.hidden == NO)
     {
-        //[dwindow setMaxSize:[[NSScreen mainScreen] frame].size];
-        
         CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
         CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
         [dwindow setFrame:NSMakeRect(xPos, yPos, 480, 270) display:YES];
@@ -148,7 +119,7 @@
 {
     self.view.window.delegate = nil;
     
-    NSLog(@"viewDidDisappear");
+    //NSLog(@"viewDidDisappear");
     [super viewDidDisappear];
     
     [NSEvent removeMonitor:eventMonitor];
@@ -158,7 +129,7 @@
 
 - (void)windowDidEnterFullScreen:(NSNotification *)notification
 {
-    NSLog(@"windowDidEnterFullScreen");
+    //NSLog(@"windowDidEnterFullScreen");
     
     if([fileArray count] > 0)
     {
@@ -168,7 +139,7 @@
 
 - (void)windowDidExitFullScreen:(NSNotification *)notification
 {
-    NSLog(@"windowDidExitFullScreen");
+    //NSLog(@"windowDidExitFullScreen");
     
     if([fileArray count] > 0)
     {
@@ -200,12 +171,12 @@
     
     NSString *filePath = [fileArray objectAtIndex:pageNumber];
     
-    NSLog(@"FILEPATH IS: %@", filePath);
+    //NSLog(@"FILEPATH IS: %@", filePath);
     
     CFStringRef fileExtension = (__bridge CFStringRef) [filePath pathExtension];
     CFStringRef fileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, NULL);
     
-    NSLog(@"FILEUTI IS: %@", (__bridge NSString*)fileUTI);
+    //NSLog(@"FILEUTI IS: %@", (__bridge NSString*)fileUTI);
     
     [dwindow setMaxSize:NSMakeSize([[dwindow screen] frame].size.width, [[dwindow screen] frame].size.height)];
     
@@ -250,7 +221,14 @@
             [player setHidden:YES];
         
         [dwindow setTitle:[filePath lastPathComponent]];
-        [self addRoundyFieldWithText:[filePath lastPathComponent] forView:imageView];
+        
+        [imageView.subviews enumerateObjectsUsingBlock:^(NSView * subview, NSUInteger idx, BOOL *stop) {
+            if([subview isMemberOfClass:[RoundView class]])
+                [subview removeFromSuperview];
+        }];
+        
+        [self addRoundyFieldHeaderWithText:[filePath lastPathComponent] forView:imageView];
+        [self addRoundyFieldFooterWithText:[NSString stringWithFormat:@"%ld of %ld", _pageControl.currentPage+1, (long)_pageControl.numberOfPages] forView:imageView];
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeMovie))
@@ -294,7 +272,20 @@
             [player setHidden:NO];
         
         [dwindow setTitle:[filePath lastPathComponent]];
-        [self addRoundyFieldWithText:[filePath lastPathComponent] forView:player];
+        
+        [player.subviews enumerateObjectsUsingBlock:^(NSView * subview, NSUInteger idx, BOOL *stop) {
+            if([subview isMemberOfClass:[RoundView class]])
+                [subview removeFromSuperview];
+        }];
+        
+        [player.subviews enumerateObjectsUsingBlock:^(NSView * subview, NSUInteger idx, BOOL *stop) {
+            if([subview isMemberOfClass:[RoundView class]])
+                [subview removeFromSuperview];
+        }];
+        
+        [self addRoundyFieldHeaderWithText:[filePath lastPathComponent] forView:player];
+        [self addRoundyFieldFooterWithText:[NSString stringWithFormat:@"%ld of %ld", pageNumber+1, (long)_pageControl.numberOfPages+1] forView:player];
+
     }
     
     else if (UTTypeConformsTo(fileUTI, kUTTypeAudio))
@@ -338,7 +329,14 @@
             [player setHidden:NO];
         
         [dwindow setTitle:[filePath lastPathComponent]];
-        [self addRoundyFieldWithText:[filePath lastPathComponent] forView:player];
+        
+        [player.subviews enumerateObjectsUsingBlock:^(NSView * subview, NSUInteger idx, BOOL *stop) {
+            if([subview isMemberOfClass:[RoundView class]])
+                [subview removeFromSuperview];
+        }];
+        
+        [self addRoundyFieldHeaderWithText:[filePath lastPathComponent] forView:player];
+        [self addRoundyFieldFooterWithText:[NSString stringWithFormat:@"%ld of %ld", _pageControl.currentPage+1, (long)_pageControl.numberOfPages] forView:player];
     }
     
     /*else if (UTTypeConformsTo(fileUTI, kUTTypeText))
@@ -349,14 +347,9 @@
     CFRelease(fileUTI);
 }
 
-- (void)addRoundyFieldWithText:(NSString*)text forView:(NSView*)view
+- (void)addRoundyFieldHeaderWithText:(NSString*)text forView:(NSView*)view
 {
     DubsWindow *dwindow = (DubsWindow *)self.view.window;
-    
-    [view.subviews enumerateObjectsUsingBlock:^(NSView * subview, NSUInteger idx, BOOL *stop) {
-        if([subview isMemberOfClass:[RoundView class]])
-            [subview removeFromSuperview];
-    }];
     
     NSString *dummyText = text;
     NSFont *textFont = [NSFont systemFontOfSize:24 weight:NSFontWeightBlack];
@@ -402,6 +395,55 @@
     }];
 }
 
+- (void)addRoundyFieldFooterWithText:(NSString*)text forView:(NSView*)view
+{
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    
+    NSString *dummyText = text;
+    NSFont *textFont = [NSFont systemFontOfSize:24 weight:NSFontWeightBlack];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:textFont,NSFontAttributeName,nil];
+    CGSize textSize = [dummyText sizeWithAttributes:attributes];
+    
+    if((textSize.width + 24) > [dwindow.contentView  bounds].size.width)
+    {
+        textSize.width = [dwindow.contentView  bounds].size.width - 24;
+    }
+    
+    RoundView *roundy = [[RoundView alloc] initWithFrame:NSMakeRect(90,40,textSize.width + 24,30)];
+    
+    NSTextField *roundyField = [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,textSize.width + 24,30)];
+    [roundyField setDrawsBackground:NO];
+    [roundyField setBordered:NO];
+    [roundyField setBezeled:NO];
+    [roundyField setFont:textFont];
+    [roundyField setTextColor:[NSColor whiteColor]];
+    [roundyField setStringValue:dummyText];
+    [roundyField setEditable:NO];
+    roundyField.alignment = NSTextAlignmentCenter;
+    
+    [roundy setFrameOrigin:NSMakePoint(
+     (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
+     (NSHeight([dwindow.contentView  bounds]) - NSHeight([roundy frame])) / 2
+     )];
+    
+    /*[roundy setFrameOrigin:NSMakePoint(
+                                       (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
+                                       dwindow.contentView.frame.size.height
+                                       )];*/
+    
+    [roundy setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
+    
+    [roundy addSubview:roundyField];
+    
+    [view addSubview:roundy];
+    
+    [roundy fadeInWithDuration:4.0 completionBlock:^{
+        [roundy fadeOutWithDuration:4.0 completionBlock:^{
+        }];
+    }];
+}
+
+
 - (void)updatePageControlForPage:(NSInteger)pageNumber
 {
     DubsWindow *dwindow = (DubsWindow *)self.view.window;
@@ -430,8 +472,6 @@
     [player.player pause];
     [imageView setImage:nil];
     
-    //[dwindow setMaxSize:[[NSScreen mainScreen] frame].size];
-    
     [dwindow setFrame:NSMakeRect(0, 0, 480, 270) display:YES];
     CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
     CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
@@ -446,11 +486,10 @@
 
 -(void)pageControl: (BFPageControl *)control didSelectPageAtIndex: (NSInteger)index
 {
-    //NSLog(@"%@: Selected page at index: %li", control, index);
     //NSLog(@"control.currentPage is: %ld", (long)control.currentPage);
     
-    [self setMediaForPage:index];
     [self updatePageControlForPage:index];
+    [self setMediaForPage:index];
 }
 
 - (void)previousItem:(NSNotification *)aNotification
@@ -476,7 +515,6 @@
 - (void)setRepresentedObject:(id)representedObject
 {
     [super setRepresentedObject:representedObject];
-    // Update the view, if already loaded.
 }
 
 @end

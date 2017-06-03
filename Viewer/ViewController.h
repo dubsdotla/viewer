@@ -28,7 +28,8 @@
 @property (nonatomic, retain)  BFPageControl *pageControl;
 
 - (void)updatePageControlForPage:(NSInteger)pageNumber;
-- (void)addRoundyFieldWithText:(NSString*)text forView:(NSView*)view;
+- (void)addRoundyFieldHeaderWithText:(NSString*)text forView:(NSView*)view;
+- (void)addRoundyFieldFooterWithText:(NSString*)text forView:(NSView*)view;
 
 @end
 
