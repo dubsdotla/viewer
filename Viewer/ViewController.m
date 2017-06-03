@@ -153,15 +153,35 @@
     [imageView setImage:nil];
     
     NSDictionary *userInfo = notification.userInfo;
-    fileArray =  [userInfo objectForKey:@"filePaths"];
+    NSArray *droppedFiles = [userInfo objectForKey:@"filePaths"];
     
-    if([fileArray count] > 0)
+    NSUInteger fileArrayCountBeforeDrop = [fileArray count];
+    
+    if([droppedFiles count] > 0)
     {
-        [NSApp activateIgnoringOtherApps:YES];
-        [_pageControl setNumberOfPages:[fileArray count]];
-        [_pageControl setCurrentPage:0];
-
-        [self pageControl:_pageControl didSelectPageAtIndex:0];
+        for (NSString *file in droppedFiles)
+        {
+            if([fileArray indexOfObject:file] == NSNotFound)
+            {
+                [fileArray addObject:file];
+            }
+        }
+        
+        if(fileArrayCountBeforeDrop == 0)
+        {
+            [NSApp activateIgnoringOtherApps:YES];
+            [_pageControl setNumberOfPages:[fileArray count]];
+            [self pageControl:_pageControl didSelectPageAtIndex:0];
+        }
+        
+        else if([fileArray count] > fileArrayCountBeforeDrop)
+        {
+            long pageIndex = _pageControl.currentPage+1;
+            
+            [NSApp activateIgnoringOtherApps:YES];
+            [_pageControl setNumberOfPages:[fileArray count]];
+            [self pageControl:_pageControl didSelectPageAtIndex:pageIndex];
+        }
     }
 }
 
@@ -284,7 +304,7 @@
         }];
         
         [self addRoundyFieldHeaderWithText:[filePath lastPathComponent] forView:player];
-        [self addRoundyFieldFooterWithText:[NSString stringWithFormat:@"%ld of %ld", pageNumber+1, (long)_pageControl.numberOfPages+1] forView:player];
+        [self addRoundyFieldFooterWithText:[NSString stringWithFormat:@"%ld of %ld", pageNumber+1, (long)_pageControl.numberOfPages] forView:player];
 
     }
     
@@ -373,15 +393,15 @@
     [roundyField setEditable:NO];
     roundyField.alignment = NSTextAlignmentCenter;
     
-    /*[roundy setFrameOrigin:NSMakePoint(
-                                       (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
-                                       (NSHeight([dwindow.contentView  bounds]) - NSHeight([roundy frame])) / 2
-                                       )];*/
-    
     [roundy setFrameOrigin:NSMakePoint(
                                        (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
-                                       dwindow.contentView.frame.size.height - 50
+                                       ((NSHeight([dwindow.contentView  bounds]) - NSHeight([roundy frame])) / 2) + 20
                                        )];
+    
+    /*[roundy setFrameOrigin:NSMakePoint(
+                                       (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
+                                       dwindow.contentView.frame.size.height - 50
+                                       )];*/
     
     [roundy setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
     
@@ -423,7 +443,7 @@
     
     [roundy setFrameOrigin:NSMakePoint(
      (NSWidth([dwindow.contentView  bounds]) - NSWidth([roundy frame])) / 2,
-     (NSHeight([dwindow.contentView  bounds]) - NSHeight([roundy frame])) / 2
+     ((NSHeight([dwindow.contentView  bounds]) - NSHeight([roundy frame])) / 2) - 20
      )];
     
     /*[roundy setFrameOrigin:NSMakePoint(
@@ -469,6 +489,9 @@
         [_pageControl removeFromSuperview];
     }
     
+    [_pageControl setNumberOfPages:1];
+    [_pageControl setCurrentPage:0];
+    
     [player.player pause];
     [imageView setImage:nil];
     
@@ -481,7 +504,10 @@
     [imageView setHidden:YES];
     [player setHidden:YES];
     
-    dwindow.title = @"";
+    dwindow.title = @"Window";
+    [fileArray removeAllObjects];
+    fileArray = nil;
+    fileArray = [[NSMutableArray alloc] init];
 }
 
 -(void)pageControl: (BFPageControl *)control didSelectPageAtIndex: (NSInteger)index

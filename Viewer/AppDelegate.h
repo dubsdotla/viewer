@@ -9,7 +9,9 @@
 #import <Cocoa/Cocoa.h>
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
-
+{
+    NSMutableArray *filesToOpen;
+}
 
 @end
 

@@ -21,7 +21,7 @@
     IBOutlet DubsImageView *imageView;
     IBOutlet AVPlayerView *player;
     IBOutlet NSTextField *placeholderField;
-    NSArray *fileArray;
+    NSMutableArray *fileArray;
     id eventMonitor;
 }
 
