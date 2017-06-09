@@ -27,6 +27,8 @@
 
 @property (nonatomic, retain)  BFPageControl *pageControl;
 
+- (BOOL)isFullScreen;
+
 - (void)updatePageControlForPage:(NSInteger)pageNumber;
 - (void)addRoundyFieldHeaderWithText:(NSString*)text forView:(NSView*)view;
 - (void)addRoundyFieldFooterWithText:(NSString*)text forView:(NSView*)view;

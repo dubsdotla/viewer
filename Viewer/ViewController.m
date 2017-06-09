@@ -127,24 +127,137 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (BOOL)isFullScreen
+{
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    
+    if(([dwindow styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask)
+        return YES;
+    
+    else
+        return NO;
+}
+
+- (BOOL)isAudioFile
+{
+    if((imageView.hidden == YES) && (player.hidden == NO))
+    {
+        if ([[player.player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo] count] == 0)
+            return YES;
+        
+        return NO;
+    }
+    
+    return NO;
+}
+
+- (BOOL)isVideoFile
+{
+    if((imageView.hidden == YES) && (player.hidden == NO))
+    {
+        if ([[player.player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo] count] != 0)
+            return YES;
+        
+        return NO;
+    }
+    
+    return NO;
+}
+
+- (BOOL)isImageFile
+{
+    if((imageView.hidden == NO) && (player.hidden == YES))
+        return YES;
+    
+    return NO;
+}
+
+
+- (void)resizeWindowForFullscreenMode
+{
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    
+    [dwindow setMaxSize:NSMakeSize([[dwindow screen] frame].size.width, [[dwindow screen] frame].size.height)];
+    
+    if([self isImageFile])
+    {
+        [dwindow setAspectRatio:imageView.image.size];
+        [dwindow setContentSize:imageView.image.size];
+    }
+    
+    else if([self isVideoFile])
+    {
+        [dwindow setAspectRatio:[[[player.player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] naturalSize]];
+        [dwindow setContentSize:[[[player.player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] naturalSize]];
+    }
+    
+    else if([self isAudioFile])
+    {
+        NSSize assetSize = {480, 270};
+        
+        [dwindow setAspectRatio:assetSize];
+        [dwindow setContentSize:[[NSScreen mainScreen] frame].size];
+        
+    }
+    
+    CGFloat xPos = NSWidth([[NSScreen mainScreen] frame])/2 - NSWidth([[NSScreen mainScreen] frame])/2;
+    CGFloat yPos = NSHeight([[NSScreen mainScreen] frame])/2 - NSHeight([[NSScreen mainScreen] frame])/2;
+    [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([[NSScreen mainScreen] frame]), NSHeight([[NSScreen mainScreen] frame])) display:YES];
+}
+
+- (void)resizeWindowForWindowMode
+{
+    DubsWindow *dwindow = (DubsWindow *)self.view.window;
+    
+    [dwindow setMaxSize:NSMakeSize([[dwindow screen] frame].size.width, [[dwindow screen] frame].size.height)];
+    
+    if([self isImageFile])
+    {
+        [dwindow setAspectRatio:imageView.image.size];
+        [dwindow setContentSize:imageView.image.size];
+    }
+    
+    else if([self isVideoFile])
+    {
+        [dwindow setAspectRatio:[[[player.player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] naturalSize]];
+        [dwindow setContentSize:[[[player.player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] naturalSize]];
+    }
+    
+    else if([self isAudioFile])
+    {
+        NSSize assetSize = {480, 270};
+        
+        [dwindow setAspectRatio:assetSize];
+        [dwindow setContentSize:[[NSScreen mainScreen] frame].size];
+    }
+    
+    if([self isAudioFile])
+    {
+        CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - (480/2);
+        CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - (270/2);
+        [dwindow setFrame:NSMakeRect(xPos, yPos, 480, 270) display:YES];
+    }
+    
+    else
+    {
+        CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
+        CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
+        [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
+    }
+}
+
 - (void)windowDidEnterFullScreen:(NSNotification *)notification
 {
     //NSLog(@"windowDidEnterFullScreen");
     
-    if([fileArray count] > 0)
-    {
-        [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage];
-    }
+    [self resizeWindowForFullscreenMode];
 }
 
 - (void)windowDidExitFullScreen:(NSNotification *)notification
 {
     //NSLog(@"windowDidExitFullScreen");
     
-    if([fileArray count] > 0)
-    {
-        [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage];
-    }
+    [self resizeWindowForWindowMode];
 }
 
 - (void)fileDropped:(NSNotification *)notification
@@ -175,12 +288,10 @@
         }
         
         else if([fileArray count] > fileArrayCountBeforeDrop)
-        {
-            long pageIndex = _pageControl.currentPage+1;
-            
+        {            
             [NSApp activateIgnoringOtherApps:YES];
             [_pageControl setNumberOfPages:[fileArray count]];
-            [self pageControl:_pageControl didSelectPageAtIndex:pageIndex];
+            [self pageControl:_pageControl didSelectPageAtIndex:fileArrayCountBeforeDrop];
         }
     }
 }
@@ -198,8 +309,6 @@
     
     //NSLog(@"FILEUTI IS: %@", (__bridge NSString*)fileUTI);
     
-    [dwindow setMaxSize:NSMakeSize([[dwindow screen] frame].size.width, [[dwindow screen] frame].size.height)];
-    
     if (UTTypeConformsTo(fileUTI, kUTTypeImage) || UTTypeConformsTo(fileUTI, kUTTypePDF) || [(__bridge NSString*)fileUTI isEqualToString:@"com.adobe.encapsulated-postscript"])
     {
         NSImage *droppedImage = [[NSImage alloc] initWithContentsOfFile:filePath];
@@ -212,25 +321,6 @@
         
         [imageView setImage:droppedImage];
         
-        NSSize imageSize = [droppedImage size];
-        
-        [dwindow setAspectRatio:imageSize];
-        [dwindow setContentSize:imageSize];
-        
-        if(([dwindow styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask)
-        {
-            CGFloat xPos = NSWidth([[NSScreen mainScreen] frame])/2 - NSWidth([[NSScreen mainScreen] frame])/2;
-            CGFloat yPos = NSHeight([[NSScreen mainScreen] frame])/2 - NSHeight([[NSScreen mainScreen] frame])/2;
-            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([[NSScreen mainScreen] frame]), NSHeight([[NSScreen mainScreen] frame])) display:YES];
-        }
-        
-        else
-        {
-            CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
-            CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
-            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
-        }
-        
         if(placeholderField.hidden == NO)
             [placeholderField setHidden:YES];
         
@@ -239,6 +329,12 @@
         
         if(player.hidden == NO)
             [player setHidden:YES];
+        
+        if([self isFullScreen])
+            [self resizeWindowForFullscreenMode];
+        
+        else
+            [self resizeWindowForWindowMode];
         
         [dwindow setTitle:[filePath lastPathComponent]];
         
@@ -261,27 +357,8 @@
             return;
         }
         
-        NSSize assetSize = [[[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] naturalSize];
-        
         player.player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:asset]];
         
-        [dwindow setAspectRatio:assetSize];
-        [dwindow setContentSize:assetSize];
-        
-        if(([dwindow styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask)
-        {
-            CGFloat xPos = NSWidth([[NSScreen mainScreen] frame])/2 - NSWidth([[NSScreen mainScreen] frame])/2;
-            CGFloat yPos = NSHeight([[NSScreen mainScreen] frame])/2 - NSHeight([[NSScreen mainScreen] frame])/2;
-            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([[NSScreen mainScreen] frame]), NSHeight([[NSScreen mainScreen] frame])) display:YES];
-        }
-        
-        else
-        {
-            CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - NSWidth([dwindow frame])/2;
-            CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - NSHeight([dwindow frame])/2;
-            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([dwindow frame]), NSHeight([dwindow frame])) display:YES];
-        }
-    
         if(placeholderField.hidden == NO)
             [placeholderField setHidden:YES];
         
@@ -290,6 +367,12 @@
         
         if(player.hidden == YES)
             [player setHidden:NO];
+        
+        if([self isFullScreen])
+            [self resizeWindowForFullscreenMode];
+        
+        else
+            [self resizeWindowForWindowMode];
         
         [dwindow setTitle:[filePath lastPathComponent]];
         
@@ -320,25 +403,6 @@
         
         player.player = [AVPlayer playerWithPlayerItem:[AVPlayerItem playerItemWithAsset:asset]];
         
-        NSSize assetSize = {480, 270};
-        
-        [dwindow setAspectRatio:assetSize];
-        [dwindow setContentSize:[[NSScreen mainScreen] frame].size];
-        
-        if(([dwindow styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask)
-        {
-            CGFloat xPos = NSWidth([[NSScreen mainScreen] frame])/2 - NSWidth([[NSScreen mainScreen] frame])/2;
-            CGFloat yPos = NSHeight([[NSScreen mainScreen] frame])/2 - NSHeight([[NSScreen mainScreen] frame])/2;
-            [dwindow setFrame:NSMakeRect(xPos, yPos, NSWidth([[NSScreen mainScreen] frame]), NSHeight([[NSScreen mainScreen] frame])) display:YES];
-        }
-        
-        else
-        {
-            CGFloat xPos = NSWidth([[dwindow screen] frame])/2 - (480/2);
-            CGFloat yPos = NSHeight([[dwindow screen] frame])/2 - (270/2);
-            [dwindow setFrame:NSMakeRect(xPos, yPos, 480, 270) display:YES];
-        }
-        
         if(placeholderField.hidden == NO)
             [placeholderField setHidden:YES];
         
@@ -347,6 +411,12 @@
         
         if(player.hidden == YES)
             [player setHidden:NO];
+        
+        if([self isFullScreen])
+            [self resizeWindowForFullscreenMode];
+        
+        else
+            [self resizeWindowForWindowMode];
         
         [dwindow setTitle:[filePath lastPathComponent]];
         
@@ -377,9 +447,7 @@
     CGSize textSize = [dummyText sizeWithAttributes:attributes];
     
     if((textSize.width + 24) > [dwindow.contentView  bounds].size.width)
-    {
         textSize.width = [dwindow.contentView  bounds].size.width - 24;
-    }
     
     RoundView *roundy = [[RoundView alloc] initWithFrame:NSMakeRect(90,40,textSize.width + 24,30)];
     
@@ -425,9 +493,7 @@
     CGSize textSize = [dummyText sizeWithAttributes:attributes];
     
     if((textSize.width + 24) > [dwindow.contentView  bounds].size.width)
-    {
         textSize.width = [dwindow.contentView  bounds].size.width - 24;
-    }
     
     RoundView *roundy = [[RoundView alloc] initWithFrame:NSMakeRect(90,40,textSize.width + 24,30)];
     
@@ -469,9 +535,7 @@
     DubsWindow *dwindow = (DubsWindow *)self.view.window;
     
     if([_pageControl superview])
-    {
         [_pageControl removeFromSuperview];
-    }
     
     [_pageControl setCurrentPage: pageNumber];
     
@@ -485,9 +549,7 @@
     DubsWindow *dwindow = (DubsWindow *)self.view.window;
    
     if([_pageControl superview])
-    {
         [_pageControl removeFromSuperview];
-    }
     
     [_pageControl setNumberOfPages:1];
     [_pageControl setCurrentPage:0];
@@ -523,9 +585,7 @@
     //NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
     
     if(_pageControl.currentPage != 0)
-    {
         [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage-1];
-    }
 }
 
 - (void)nextItem:(NSNotification *)aNotification
@@ -533,9 +593,7 @@
     //NSLog(@"control.currentPage is: %ld", (long)_pageControl.currentPage);
     
     if(_pageControl.currentPage != (_pageControl.numberOfPages - 1) )
-    {
         [self pageControl:_pageControl didSelectPageAtIndex:_pageControl.currentPage+1];
-    }
 }
 
 - (void)setRepresentedObject:(id)representedObject
