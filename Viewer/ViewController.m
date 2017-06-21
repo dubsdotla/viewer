@@ -262,6 +262,8 @@
 
 - (void)fileDropped:(NSNotification *)notification
 {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
     [player.player pause];
     [imageView setImage:nil];
     
@@ -274,7 +276,38 @@
     {
         for (NSString *file in droppedFiles)
         {
-            if([fileArray indexOfObject:file] == NSNotFound)
+            BOOL isDir;
+            
+            //if path is directory, extract list of files
+            if ([fileManager fileExistsAtPath:file isDirectory:&isDir] && isDir)
+            {
+                NSError *error;
+                
+                NSArray *fileURLs =  [fileManager contentsOfDirectoryAtURL:[NSURL fileURLWithPath:file]
+                                                includingPropertiesForKeys:[NSArray arrayWithObject:NSURLNameKey]
+                                                                   options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                     error:&error];
+                if(error == nil)
+                {
+                    for (NSURL *fileURL in fileURLs)
+                    {
+                        //NSString *filepath = [NSString stringWithFormat:@"%@/%@",file,theFile];
+                        NSString *filepath = [fileURL path];
+                        
+                        if([fileArray indexOfObject:filepath] == NSNotFound)
+                        {
+                            [fileArray addObject:filepath];
+                        }
+                    }
+                }
+                
+                else
+                {
+                    NSLog(@"%@",[error localizedDescription]);
+                }
+            }
+            
+            else if([fileArray indexOfObject:file] == NSNotFound)
             {
                 [fileArray addObject:file];
             }

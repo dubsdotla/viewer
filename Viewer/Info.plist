@@ -8,6 +8,16 @@
     <array>
         <dict>
             <key>CFBundleTypeName</key>
+            <string>Folder</string>
+            <key>CFBundleTypeOSTypes</key>
+            <array>
+                <string>fold</string>
+            </array>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+        </dict>
+        <dict>
+            <key>CFBundleTypeName</key>
             <string>Video</string>
             <key>CFBundleTypeRole</key>
             <string>Viewer</string>
